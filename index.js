@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId } = require('mongodb');
+const res = require('express/lib/response');
 const app = express()
 const port = process.env.PORT ||5000;
 
@@ -31,7 +32,23 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
           const query={_id:ObjectId(id)};
           const tool = await toolCollection.findOne(query);
           res.send(tool);
-        })
+        });
+
+        //POST 
+        app.post('/tool', async(req, res)=>{
+         const newtool= req.body;
+         const result = await toolCollection.insertOne(newtool);
+         res.send(result);
+        });
+
+        //DELETE
+         app.delete('/tool/:id', async(req, res) =>{
+           const id = req.params.id;
+           const query = {_id: ObjectId(id)};
+           const result = await toolCollection.deleteOne(query);
+           res.send(result);
+         });
+      
     }
     finally{
 
