@@ -19,6 +19,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
     try{
          await client.connect();
         const toolCollection = client.db('giant-tech').collection('tools');
+
+        const userCollection = client.db('giant-tech').collection('users');
  
         app.get('/tool', async (req, res)=>{
             const query = {};
@@ -33,6 +35,18 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
           const tool = await toolCollection.findOne(query);
           res.send(tool);
         });
+
+        app.put('/user/:email', async(req, res)=>{
+          const email = req.params.email;
+          const user = req.body;
+          const filter = {email: email};
+          const options = { upsert: true};
+          const updateDoc = {
+            $set: user,
+          };
+          const result = await userCollection.updateOne(filter,updateDoc,options);
+          res.send(result);
+        })
 
         //POST 
         app.post('/tool', async(req, res)=>{
