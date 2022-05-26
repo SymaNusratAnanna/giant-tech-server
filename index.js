@@ -15,6 +15,12 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+function verifyJWT(req, res, next){
+  const authHeader = req.headers.authorization;
+  console.log('abc');
+}
+
+
  async function run(){
 
     try{
@@ -69,8 +75,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
            res.send(result);
          });
 
-         app.get('/order', async(req, res)=>{
+         app.get('/order', verifyJWT, async(req, res)=>{
            const email = req.query.email;
+           const authorization = req.headers.authorization;
+           console.log('auth header', authorization);
            const query = {email : email};
            const orders = await orderCollection.find(query).toArray();
            res.send(orders);
