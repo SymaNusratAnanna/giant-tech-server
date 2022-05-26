@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require ('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId, ObjectID } = require('mongodb');
 const res = require('express/lib/response');
 const app = express()
 const port = process.env.PORT ||5000;
@@ -58,6 +58,12 @@ const verifyAdmin = async (req, res, next) => {
           const tool = await toolCollection.findOne(query);
           res.send(tool);
         });
+
+
+        app.get('/order/:id', async(req, res)=>{
+          const id = req.params.id;
+          const query= {_id: ObjectId(id)};
+        })
 
         app.put('/user/:email', async(req, res)=>{
           const email = req.params.email;
