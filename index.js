@@ -15,10 +15,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-function verifyJWT(req, res, next){
-  const authHeader = req.headers.authorization;
-  console.log('abc');
-}
+
 
 
  async function run(){
@@ -30,6 +27,23 @@ function verifyJWT(req, res, next){
         const userCollection = client.db('giant-tech').collection('users');
 
         const orderCollection = client.db('giant-tech').collection('orders');
+
+        const reviewCollection = client.db('giant-tech').collection('reviews');
+
+
+//verify function
+const verifyAdmin = async (req, res, next) => {
+  // const requester = req.decoded.email;
+  // const requesterAccount = await userCollection.findOne({ email: requester });
+  // // if (requesterAccount.role === 'admin') {
+  // //   next();
+  // // }
+  // // else {
+  // //   res.status(403).send({ message: 'forbidden' });
+  // // }
+}
+
+
  
         app.get('/tool', async (req, res)=>{
             const query = {};
@@ -65,6 +79,19 @@ function verifyJWT(req, res, next){
          res.send(result);
         });
 
+        // add review
+        app.post('/addreview', async(req, res)=>{
+         const newReview= req.body;
+         const result = await reviewCollection.insertOne(newReview);
+         res.send(result);
+        });
+       
+        app.get('/review', async (req, res)=>{
+          const query = {};
+          const cursor = reviewCollection.find(query);
+          const  reviews= await cursor.toArray();
+          res.send(reviews);
+      });
 
 
         //DELETE
@@ -75,10 +102,9 @@ function verifyJWT(req, res, next){
            res.send(result);
          });
 
-         app.get('/order', verifyJWT, async(req, res)=>{
+         app.get('/order',  async(req, res)=>{
            const email = req.query.email;
-           const authorization = req.headers.authorization;
-           console.log('auth header', authorization);
+           
            const query = {email : email};
            const orders = await orderCollection.find(query).toArray();
            res.send(orders);
@@ -91,6 +117,30 @@ function verifyJWT(req, res, next){
           const result=await orderCollection.insertOne(order)
           res.send({ success: true, result })
       })
+
+// admin route
+
+app.get('/admin/:email', async (req, res) => {
+  const email = req.params.email;
+  const user = await userCollection.findOne({ email: email });
+  const isAdmin = user.role === 'admin';
+  res.send({ admin: isAdmin })
+})
+
+
+
+
+app.put('/user/admin/:email', async (req, res) => {
+  const email = req.params.email;
+  const filter = { email: email };
+  const updateDoc = {
+    $set: { role: 'admin' },
+  };
+  const result = await userCollection.updateOne(filter, updateDoc);
+  res.send(result);
+})
+
+
       
     }
     finally{
