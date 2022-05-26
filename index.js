@@ -22,6 +22,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
         const toolCollection = client.db('giant-tech').collection('tools');
 
         const userCollection = client.db('giant-tech').collection('users');
+
+        const orderCollection = client.db('giant-tech').collection('orders');
  
         app.get('/tool', async (req, res)=>{
             const query = {};
@@ -57,6 +59,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
          res.send(result);
         });
 
+
+
         //DELETE
          app.delete('/tool/:id', async(req, res) =>{
            const id = req.params.id;
@@ -64,6 +68,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
            const result = await toolCollection.deleteOne(query);
            res.send(result);
          });
+
+
+         app.post('/order',async(req,res)=>{
+          const order=req.body;
+          const result=await orderCollection.insertOne(order)
+          res.send({ success: true, result })
+      })
       
     }
     finally{
