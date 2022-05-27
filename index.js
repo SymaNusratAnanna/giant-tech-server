@@ -5,6 +5,8 @@ const jwt = require ('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, MongoRuntimeError, ObjectId, ObjectID } = require('mongodb');
 const res = require('express/lib/response');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const app = express()
 const port = process.env.PORT ||5000;
 
@@ -44,6 +46,21 @@ const verifyAdmin = async (req, res, next) => {
 }
 
 
+app.post('/create-payment-intent', async(req, res) =>{
+  const tool = req.body;
+  const price = tool.price;
+  const amount = price*100;
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount : amount,
+    currency: 'usd',
+    payment_method_types:['card']
+  });
+  res.send({clientSecret: paymentIntent.client_secret})
+});
+
+
+
+
  
         app.get('/tool', async (req, res)=>{
             const query = {};
@@ -63,6 +80,8 @@ const verifyAdmin = async (req, res, next) => {
         app.get('/order/:id', async(req, res)=>{
           const id = req.params.id;
           const query= {_id: ObjectId(id)};
+          const order = await orderCollection.findOne(query);
+          res.send(order);
         })
 
         app.put('/user/:email', async(req, res)=>{
