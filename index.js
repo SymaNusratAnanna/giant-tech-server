@@ -46,17 +46,17 @@ const verifyAdmin = async (req, res, next) => {
 }
 
 
-app.post('/create-payment-intent', async(req, res) =>{
-  const tool = req.body;
-  const price = tool.price;
-  const amount = price*100;
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount : amount,
-    currency: 'usd',
-    payment_method_types:['card']
-  });
-  res.send({clientSecret: paymentIntent.client_secret})
-});
+// app.post('/create-payment-intent', async(req, res) =>{
+//   const tool = req.body;
+//   const price = tool.price;
+//   const amount = price*100;
+//   const paymentIntent = await stripe.paymentIntents.create({
+//     amount : amount,
+//     currency: 'usd',
+//     payment_method_types:['card']
+//   });
+//   res.send({clientSecret: paymentIntent.client_secret})
+// });
 
 
 
@@ -82,6 +82,14 @@ app.post('/create-payment-intent', async(req, res) =>{
           const query= {_id: ObjectId(id)};
           const order = await orderCollection.findOne(query);
           res.send(order);
+        })
+
+
+
+        app.get('/user' , async(req, res) =>{
+         const users = await userCollection.find().toArray();
+         res.send(users);
+
         })
 
         app.put('/user/:email', async(req, res)=>{
