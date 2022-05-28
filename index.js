@@ -85,7 +85,7 @@ const verifyAdmin = async (req, res, next) => {
         })
 
 
-
+//user
         app.get('/user' , async(req, res) =>{
          const users = await userCollection.find().toArray();
          res.send(users);
